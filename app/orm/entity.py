@@ -3,13 +3,15 @@
 Classes:
     Entity: テーブルのレコードに対応するEntity基底クラス
     User: `users`テーブルのレコードに対応するEntityクラス
+    GenerationHistory: `generation_history`テーブルのレコードに対応するEntityクラス
 """
 
 from dataclasses import asdict, dataclass
 from datetime import datetime
 
-from sqlalchemy import DATETIME, String, text
+from sqlalchemy import text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.types import CHAR, DATETIME, INT, TEXT, VARCHAR
 
 
 class Entity(DeclarativeBase):
@@ -30,22 +32,22 @@ class User(Entity):
 
     Attributes:
         user_id (Mapped[int | None], optional):
-            `user_id`カラム。主キー。
+            ユーザID `user_id` カラム。主キー。
             `optional`引数であり`None`を許容する。
             引数未指定の場合は`AUTO_INCREMENT`により既存レコードに +1 加算した通番が登録される。
 
         user_name (Mapped[str], optional):
-            `user_name`カラム。`NOT NULL`制約あり。
+            ユーザ名 `user_name` カラム。`NOT NULL`制約あり。
 
         created_at (Mapped[datetime | None], optional):
-            `created_at`カラム。
+            作成日時 `created_at` カラム。
             `optional`引数であり`None`を許容する。
             引数未指定の場合は`CURRENT_TIMESTAMP`により現在の日時で初期化される。
             [11.2.5 TIMESTAMP および DATETIME の自動初期化および更新機能\
             ](https://dev.mysql.com/doc/refman/8.0/ja/timestamp-initialization.html)
 
         updated_at (Mapped[datetime | None], optional):
-            `updated_at`カラム。
+            更新日時 `updated_at` カラム。
             `optional`引数であり`None`を許容する。
             引数未指定の場合は`CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`
             により現在の日時で初期化および更新される。
@@ -55,8 +57,8 @@ class User(Entity):
 
     __tablename__ = "users"
 
-    user_id: Mapped[int | None] = mapped_column(primary_key=True)
-    user_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    user_id: Mapped[int | None] = mapped_column(INT, primary_key=True)
+    user_name: Mapped[str] = mapped_column(VARCHAR(50), nullable=False)
     created_at: Mapped[datetime | None] = mapped_column(
         DATETIME,
         # https://docs.sqlalchemy.org/en/20/dialects/mysql.html#timestamp-datetime-issues
@@ -73,5 +75,78 @@ class User(Entity):
 
         Returns:
             dict[str, int | str | datetime | None]: `User`情報を保持する辞書
+        """
+        return asdict(self)
+
+
+@dataclass
+class GenerationHistory(Entity):
+    """`generation_history`テーブルのレコードに対応するEntityクラス
+
+    Attributes:
+        request_id (Mapped[str | None], optional):
+            リクエストID `request_id` カラム。主キー。
+            `optional`引数であり`None`を許容する。
+            デフォルト値は`'00000000000'`であるものの実際には、
+            引数未指定の場合は`create_request_id`トリガーにより
+            登録日（YYMMDD）+ シーケンス（5桁0埋め）の通番11桁が設定される。
+
+        prompt_af (Mapped[str | None], optional):
+            指示（音声）`prompt_af` カラム。音声ファイルのパス。
+            `optional`引数であり`None`を許容する。
+
+        prompt_ja (Mapped[str | None], optional):
+            指示（日本語）`prompt_ja` カラム。文字起こし結果。
+            `optional`引数であり`None`を許容する。
+
+        prompt_en (Mapped[str | None], optional):
+            指示（英語）`prompt_en` カラム。翻訳結果。
+            `optional`引数であり`None`を許容する。
+
+        html (Mapped[str | None], optional):
+            HTML `html` カラム。生成結果。
+            `optional`引数であり`None`を許容する。
+
+        created_at (Mapped[datetime | None], optional):
+            作成日時 `created_at` カラム。
+            `optional`引数であり`None`を許容する。
+            引数未指定の場合は`CURRENT_TIMESTAMP`により現在の日時で初期化される。
+            [11.2.5 TIMESTAMP および DATETIME の自動初期化および更新機能\
+            ](https://dev.mysql.com/doc/refman/8.0/ja/timestamp-initialization.html)
+
+        updated_at (Mapped[datetime | None], optional):
+            更新日時 `updated_at` カラム。
+            `optional`引数であり`None`を許容する。
+            引数未指定の場合は`CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP`
+            により現在の日時で初期化および更新される。
+            [11.2.5 TIMESTAMP および DATETIME の自動初期化および更新機能\
+            ](https://dev.mysql.com/doc/refman/8.0/ja/timestamp-initialization.html)
+    """
+
+    __tablename__ = "generation_history"
+
+    request_id: Mapped[str | None] = mapped_column(
+        CHAR(11), primary_key=True, default="0" * 11
+    )
+    prompt_af: Mapped[str | None] = mapped_column(VARCHAR(255), nullable=True)
+    prompt_ja: Mapped[str | None] = mapped_column(TEXT, nullable=True)
+    prompt_en: Mapped[str | None] = mapped_column(TEXT, nullable=True)
+    html: Mapped[str | None] = mapped_column(TEXT, nullable=True)
+    created_at: Mapped[datetime | None] = mapped_column(
+        DATETIME,
+        # https://docs.sqlalchemy.org/en/20/dialects/mysql.html#timestamp-datetime-issues
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DATETIME,
+        # https://docs.sqlalchemy.org/en/20/dialects/mysql.html#timestamp-datetime-issues
+        server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
+    )
+
+    def to_dict(self) -> dict[str, str | datetime | None]:
+        """`GenerationHistory`オブジェクトを辞書へ変換する。
+
+        Returns:
+            dict[str, str | datetime | None]: `GenerationHistory`情報を保持する辞書
         """
         return asdict(self)
