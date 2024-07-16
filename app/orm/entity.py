@@ -91,16 +91,8 @@ class GenerationHistory(Entity):
             引数未指定の場合は`create_request_id`トリガーにより
             登録日（YYMMDD）+ シーケンス（5桁0埋め）の通番11桁が設定される。
 
-        prompt_af (Mapped[str | None], optional):
-            指示（音声）`prompt_af` カラム。音声ファイルのパス。
-            `optional`引数であり`None`を許容する。
-
         prompt_ja (Mapped[str | None], optional):
             指示（日本語）`prompt_ja` カラム。文字起こし結果。
-            `optional`引数であり`None`を許容する。
-
-        prompt_en (Mapped[str | None], optional):
-            指示（英語）`prompt_en` カラム。翻訳結果。
             `optional`引数であり`None`を許容する。
 
         html (Mapped[str | None], optional):
@@ -128,9 +120,7 @@ class GenerationHistory(Entity):
     request_id: Mapped[str | None] = mapped_column(
         CHAR(11), primary_key=True, default="0" * 11
     )
-    prompt_af: Mapped[str | None] = mapped_column(VARCHAR(255), nullable=True)
     prompt_ja: Mapped[str | None] = mapped_column(TEXT, nullable=True)
-    prompt_en: Mapped[str | None] = mapped_column(TEXT, nullable=True)
     html: Mapped[str | None] = mapped_column(TEXT, nullable=True)
     created_at: Mapped[datetime | None] = mapped_column(
         DATETIME,

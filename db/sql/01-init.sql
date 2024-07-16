@@ -17,9 +17,7 @@ INSERT INTO `users` VALUES (NULL, 'test', default, default);
 CREATE TABLE IF NOT EXISTS `generation_history`
 (
   `request_id` CHAR(11) DEFAULT '00000000000' COMMENT 'リクエストID',
-  `prompt_af` VARCHAR(255) COMMENT '指示（音声）',
   `prompt_ja` TEXT COMMENT '指示（日本語）',
-  `prompt_en` TEXT COMMENT '指示（英語）',
   `html` TEXT COMMENT 'HTML',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日時',
