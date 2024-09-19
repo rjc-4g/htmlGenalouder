@@ -39,7 +39,4 @@ class HistoryDto:
         Returns:
             HistoryDto: 履歴データオブジェクト
         """
-        dto = cls()
-        dto.prompt_ja = input
-        dto.html = output
-        return dto
+        return cls(prompt_ja=input, html=output)
