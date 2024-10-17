@@ -17,21 +17,6 @@ def render_row(date, input_text, output_html):
         )
 
 
-# 履歴一覧生成処理
-def create_html_table(model_list):
-    html_content = "<table style='width:100%; table-layout: fixed;'>"
-    html_content += "<tr><th>入力音声</th><th>出力結果</th></tr>"
-    for model in model_list:
-        html_content += (
-            f"<tr>"
-            f"<td style='word-wrap: break-word;'>{model.prompt_ja}</td>"
-            f"<td style='word-wrap: break-word;'>{model.html}</td>"
-            f"</tr>"
-        )
-    html_content += "</table>"
-    return html_content
-
-
 # クリア処理
 def clear_outputs():
     return "", None  # 空の文字列とNoneのファイルパスを返す
@@ -70,23 +55,21 @@ with gr.Blocks() as demo:
         html_button = gr.Button("HTML生成")
         clear = gr.Button("クリア")
 
-    # 履歴画面
-    with gr.Tab("履歴"):
-        # HTML出力ボタンクリック時処理
-        html_button.click(
-            # HTML生成処理後、最新の履歴処理を取得
-            fn=lambda x: [process_audio_to_html(x), update_history_tab()],
-            inputs=audio_data,
-            outputs=html_output
-        )
-        # クリアボタンクリック時処理
-        clear.click(
-            fn=clear_outputs,
-            inputs=[],
-            outputs=[html_output, audio_data]
-        )
-        # 初期履歴表示
-        update_history_tab()
+    # HTML出力ボタンクリック時処理
+    html_button.click(
+        # HTML生成処理後、最新の履歴処理を取得
+        fn=lambda x: [process_audio_to_html(x), update_history_tab()],
+        inputs=audio_data,
+        outputs=html_output
+    )
+    # クリアボタンクリック時処理
+    clear.click(
+        fn=clear_outputs,
+        inputs=[],
+        outputs=[html_output, audio_data]
+    )
+    # 初期履歴表示
+    update_history_tab()
 
 demo.queue()
 
