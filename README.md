@@ -11,6 +11,11 @@ copy .env.example .env
 OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
+.envファイルのDEEPL_API_KEYに発行したキーを設定
+```
+DEEPL_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
 ```cmd
 docker compose up -d
 ```
