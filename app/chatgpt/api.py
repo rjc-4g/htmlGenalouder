@@ -7,9 +7,9 @@ load_dotenv()
 translator = deepl.Translator(os.environ.get("DEEPL_API_KEY"))
 client = OpenAI( api_key = os.environ.get("OPENAI_API_KEY"))
 
-model_name = os.environ.get("CHATGPT_MODEL_NAME")
-source_lang = os.environ.get("VOICE_SOURCE_LANG")
-target_lang = os.environ.get("CHATGPT_INPUT_LANG")
+model_name = "gpt-4o"
+source_lang = "JA"
+target_lang = "EN-US"
 
 def get_html_from_chat_gpt(request):
 
