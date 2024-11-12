@@ -1,9 +1,79 @@
 import gradio as gr
+from whisper.whisper import speech_to_text
+from chatgpt.api import get_html_from_chat_gpt
+from history.dto import HistoryDto
+from history.service import HistoryService
+
+history_service = HistoryService()
 
 
-def greet(name):
-    return "Hello " + name + "!"
+# HTML出力結果構築
+def render_row(date, input_text, output_html):
+    with gr.Accordion(date, open=False):
+        gr.Textbox(value=input_text, label="インプット内容", show_copy_button=True)
+        gr.HTML(value=output_html, label="結果としてのHTML")
+        gr.Textbox(
+            value=output_html, label="HTML結果（テキスト）", show_copy_button=True
+        )
 
 
-demo = gr.Interface(fn=greet, inputs="text", outputs="text")
-demo.launch()
+# クリア処理
+def clear_outputs():
+    return "", None  # 空の文字列とNoneのファイルパスを返す
+
+
+# HTML生成処理
+def process_audio_to_html(audio):
+    if audio is None:
+        return "<strong>音声入力(Record→Stop)をしてからHTML生成ボタンを押してください！！</strong>"
+    text = speech_to_text(audio)
+    html_text = get_html_from_chat_gpt(text)
+    history_service.register_history(HistoryDto.of(text, html_text))
+    return html_text
+
+
+# 画面レイアウト、イベント定義
+with gr.Blocks() as demo:
+    gr.Label("音声を入力後(Record→Stop)、HTML生成ボタンを押してください！")
+
+    # HTML出力画面
+    with gr.Tab("HTML出力"):
+        with gr.Row():
+            audio_data = gr.Audio(
+                sources=["microphone"], type="filepath", max_length=10
+            )
+            html_output = gr.HTML()
+        html_button = gr.Button("HTML生成")
+        clear = gr.Button("クリア")
+
+    # 履歴画面
+    with gr.Tab("履歴") as gr_tab:
+        # HTML出力ボタンクリック時処理
+        html_button.click(
+            # HTML生成処理後、最新の履歴処理を取得
+            fn=process_audio_to_html,
+            inputs=audio_data,
+            outputs=html_output
+        )
+        # クリアボタンクリック時処理
+        clear.click(
+            fn=clear_outputs,
+            inputs=[],
+            outputs=[html_output, audio_data]
+        )
+
+        # 履歴タブの更新処理
+        @gr.render(triggers=[gr_tab.select])
+        def update_history_tab():
+            model_list = history_service.get_all_histories(
+                reverse_request_id=True
+            )
+            for model in model_list:
+                date_str = model.created_at.strftime("%Y/%m/%d %H:%M")
+                render_row(date_str, model.prompt_ja, model.html)
+
+
+demo.queue()
+
+if __name__ == "__main__":
+    demo.launch()

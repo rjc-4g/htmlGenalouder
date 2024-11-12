@@ -1,4 +1,4 @@
-gradio==4.36.1
+gradio==5.1.0
 deepl==1.19.1
 python-dotenv==1.0.1
 mysql-connector-python==8.4.0
