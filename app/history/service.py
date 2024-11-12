@@ -35,8 +35,15 @@ class HistoryService:
             )
             mapper.insert(generation_history)
 
-    def get_all_histories(self) -> tuple[HistoryDto, ...]:
+    def get_all_histories(
+        self, *, reverse_request_id: bool = False
+    ) -> tuple[HistoryDto, ...]:
         """登録された全ての履歴を取得する。
+
+        Args:
+            reverse_request_id (bool, optional):
+                `True`が指定された場合はリクエストIDの降順で履歴を取得する。
+                デフォルトは`False`。※キーワード専用引数
 
         Returns:
             tuple[HistoryDto, ...]: 履歴データオブジェクトのタプル
@@ -46,7 +53,14 @@ class HistoryService:
         """
 
         with Mapper.create_session() as mapper:
+
             select_statement = select(GenerationHistory)
+
+            if reverse_request_id:
+                select_statement = select_statement.order_by(
+                    GenerationHistory.request_id.desc()
+                )
+
             return tuple(
                 map(
                     lambda gh: HistoryDto(**gh.to_dict()),

@@ -1,4 +1,6 @@
 gradio==5.1.0
+deepl==1.19.1
+python-dotenv==1.0.1
 mysql-connector-python==8.4.0
 sqlalchemy==2.0.31
 openai==1.35.14
