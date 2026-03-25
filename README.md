@@ -1,21 +1,8 @@
-# gradio-sample
+# HTMLGenalouder
 
-## Setup(for Windows)
+## Overview
+HTMLを生成するWebアプリ<br>
+ユーザからの音声入力を元にChatGPTがHTMLを表示してくれる
 
-```cmd
-copy .env.example .env
-```
-
-```cmd
-docker compose up -d
-```
-
-## Access
-
-[Open](http://localhost:7860/)
-
-## All Delete
-
-```
-docker compose down --rmi all --volumes --remove-orphans
-```
+## Author
+[株式会社ＲＪＣ](https://www.r-jc.jp/) システム開発部第4グループ
